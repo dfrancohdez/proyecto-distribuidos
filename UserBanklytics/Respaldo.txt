@@ -1,0 +1,188 @@
+import AWS from 'aws-sdk';
+import dotenv from 'dotenv';
+
+// Configuración inicial
+dotenv.config();
+AWS.config.update({
+    region: process.env.AWS_R,
+});
+
+const cognito = new AWS.CognitoIdentityServiceProvider();
+const USER_POOL_ID = process.env.USER_POOL_ID;
+const CLIENT_ID = process.env.CLIENT_ID;
+
+// Función para respuestas CORS
+const response = (statusCode, body) => {
+    return {
+        statusCode,
+        headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
+            "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        },
+        body: JSON.stringify(body),
+    };
+};
+
+// Handler principal
+export const handler = async (event) => {
+    try {
+        const route = event.routeKey || event.resource || '';
+
+        if (route.includes('register')) {
+            return await registerUser(event);
+        } else if (route.includes('login')) {
+            return await loginUser(event);
+        } else if (route.includes('update')) {
+            return await updateUser(event);
+        } else if (route.includes('forgot-password')) {
+            return await forgotPassword(event);
+        } else if (route.includes('reset-password')) {
+            return await resetPassword(event);
+        } else if (route.includes('confirm-email')) {
+            return await confirmEmail(event); // Nueva función para confirmar correo
+        } else {
+            return response(404, { error: 'Ruta no válida.' });
+        }
+    } catch (error) {
+        return response(400, { error: error.message });
+    }
+};
+
+// Registro de usuario
+const registerUser = async (event) => {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        const { email, password, name } = body;
+
+        const params = {
+            ClientId: CLIENT_ID,
+            Username: email,
+            Password: password,
+            UserAttributes: [
+                { Name: 'email', Value: email },
+                { Name: 'name', Value: name },
+            ],
+        };
+
+        await cognito.signUp(params).promise();
+
+        // Envía el código de confirmación automáticamente al correo
+        return response(201, { message: 'Registro exitoso. Revisa tu correo para confirmar tu cuenta.' });
+    } catch (error) {
+        return response(400, { error: error.message });
+    }
+};
+
+// Confirmar correo electrónico
+const confirmEmail = async (event) => {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        const { email, code } = body;
+
+        const params = {
+            ClientId: CLIENT_ID,
+            Username: email,
+            ConfirmationCode: code,
+        };
+
+        await cognito.confirmSignUp(params).promise();
+        return response(200, { message: 'Correo confirmado con éxito.' });
+    } catch (error) {
+        return response(400, { error: error.message });
+    }
+};
+
+// Inicio de sesión
+const loginUser = async (event) => {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        const { email, password } = body;
+
+        const params = {
+            AuthFlow: 'USER_PASSWORD_AUTH',
+            ClientId: CLIENT_ID,
+            AuthParameters: {
+                USERNAME: email,
+                PASSWORD: password,
+            },
+        };
+
+        const authResponse = await cognito.initiateAuth(params).promise();
+
+        const userParams = {
+            UserPoolId: USER_POOL_ID,
+            Username: email,
+        };
+
+        const userInfo = await cognito.adminGetUser(userParams).promise();
+        const name = userInfo.UserAttributes.find(attr => attr.Name === "name")?.Value || "Usuario";
+        const emailAttr = userInfo.UserAttributes.find(attr => attr.Name === "email")?.Value || email;
+
+        return response(200, {
+            token: authResponse.AuthenticationResult?.IdToken,
+            username: name,
+            email: emailAttr,
+        });
+    } catch (error) {
+        return response(400, { error: error.message });
+    }
+};
+
+// Recuperar contraseña (Paso 1)
+const forgotPassword = async (event) => {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        const { email } = body;
+
+        const params = {
+            ClientId: CLIENT_ID,
+            Username: email,
+        };
+
+        await cognito.forgotPassword(params).promise();
+        return response(200, { message: 'Código enviado al correo.' });
+    } catch (error) {
+        return response(400, { error: error.message });
+    }
+};
+
+// Restablecer contraseña (Paso 2)
+const resetPassword = async (event) => {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        const { email, code, password } = body;
+
+        const params = {
+            ClientId: CLIENT_ID,
+            Username: email,
+            ConfirmationCode: code,
+            Password: password,
+        };
+
+        await cognito.confirmForgotPassword(params).promise();
+        return response(200, { message: 'Contraseña restablecida con éxito.' });
+    } catch (error) {
+        return response(400, { error: error.message });
+    }
+};
+
+// Actualizar usuario
+const updateUser = async (event) => {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        const { email, name } = body;
+
+        const params = {
+            UserPoolId: USER_POOL_ID,
+            Username: email,
+            UserAttributes: [{ Name: 'name', Value: name }],
+        };
+
+        await cognito.adminUpdateUserAttributes(params).promise();
+        return response(200, { message: 'Usuario actualizado con éxito.' });
+    } catch (error) {
+        return response(400, { error: error.message });
+    }
+};

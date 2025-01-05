@@ -1,0 +1,33 @@
+.bgPurpple {
+  background-color: #9580ff;
+}
+
+.bgPurppleLight {
+  background-color: #9580ff;
+  opacity: 10%;
+}
+
+.textPurpple {
+  color: #9580ff;
+}
+
+.borderPurpple {
+  border-color: #9580ff;
+}
+
+.lightPurpple {
+  color: #9580ff;
+  opacity: 30%;
+}
+
+.hover\:textPurpple:hover {
+  color: #9580ff;
+}
+
+.hover\:borderPurpple:hover {
+  border: solid 1px #9580ff;
+}
+
+.hover\:lightPurpple:hover {
+  background-color: #9580ff17;
+}
