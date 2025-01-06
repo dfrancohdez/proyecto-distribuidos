@@ -9,10 +9,12 @@ export const uploadFile = async (file) => {
         const binaryData = await file.arrayBuffer(); // Cambiado a binario
 
         // Hacer la solicitud POST
-        const response = await fetch(`${API_URL}/bank-statements/files?fileName=${fileName}`, {
+        const response = await fetch(`${API_URL}/bank-statements/files`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/octet-stream", // Enviar como binario
+                "x-file-name": fileName, // Enviar nombre de archivo
+                "x-token": localStorage.getItem("token"), // Enviar token de autenticación
             },
             body: binaryData, // Enviar directamente el binario
         });
