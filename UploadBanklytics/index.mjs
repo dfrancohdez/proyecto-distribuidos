@@ -1,6 +1,23 @@
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
-import jwt from 'jsonwebtoken'; // Para decodificar el token JWT
+import { CognitoJwtVerifier } from "aws-jwt-verify";
+
+const verifier = CognitoJwtVerifier.create({
+    userPoolId: "us-east-1_jklE6uy2s",
+    tokenUse: "id",
+    clientId: "491m2bed1ngofftj3pfdjhedot",
+  });
+  
+export const validateToken = async (token) => {
+  try {
+    const payload = await verifier.verify(token);
+    //console.log("Token is valid. Payload:", payload);
+    return payload;
+  } catch (err) {
+    //console.error("Token not valid!", err);
+    return null;
+  }
+}
 
 // Configuración inicial
 dotenv.config();
@@ -45,8 +62,8 @@ export const handler = async (event) => {
         const token = authHeader; // Asume formato "Bearer <token>"
         let userId;
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET); // Reemplaza con tu clave secreta JWT
-            userId = decoded.id; // Cambia "id" si tu token tiene otra estructura
+            const decoded = validateToken(authHeader); // Reemplaza con tu clave secreta JWT
+            userId = decoded["cognito:username"]; // Cambia "id" si tu token tiene otra estructura
         } catch (err) {
             console.error("Token inválido:", err);
             return response(401, { error: "Token inválido o expirado." });
