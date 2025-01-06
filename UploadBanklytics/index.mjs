@@ -104,7 +104,7 @@ export const handler = async (event) => {
         // Parámetros para S3
         const params = {
             Bucket: BUCKET_NAME,
-            Key: `${userId}_${fileName}`, // Usar el ID del usuario en lugar de la fecha
+            Key: `incoming/${userId}_${fileName}`, // Usar el ID del usuario en lugar de la fecha
             Body: Buffer.from(event.body, 'base64'), // Convierte Base64 a binario
             ContentType: fileExtension === '.csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         };
