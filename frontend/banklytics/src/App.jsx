@@ -10,6 +10,7 @@ import Movements from "./pages/Movements";
 import Profile from "./pages/Profile";
 import { ToastContainer, toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import 'datatables.net-dt/css/dataTables.dataTables.css';
 function App() {
   return (
     <Router>
