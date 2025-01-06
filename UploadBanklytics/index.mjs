@@ -35,7 +35,7 @@ export const handler = async (event) => {
         }
 
         // Validar encabezado de autorización
-        const authHeader = event.headers.x-token;
+        const authHeader = event.headers["x-token"];
         if (!authHeader) {
             console.error("Falta el encabezado de autorización.");
             return response(401, { error: "No autorizado. Falta el token." });
@@ -62,7 +62,7 @@ export const handler = async (event) => {
 
         // Obtener parámetros desde query string
         const queryParams = event.queryStringParameters || {};
-        const fileName = event.headers.x-file-name; // Nombre del archivo
+        const fileName = event.headers["x-file-name"]; // Nombre del archivo
 
         if (!fileName) {
             console.error("Falta el nombre del archivo.");
@@ -109,3 +109,5 @@ export const handler = async (event) => {
         return response(500, { error: error.message });
     }
 };
+
+
