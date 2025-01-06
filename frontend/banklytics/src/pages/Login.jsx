@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import InfoCard from "../components/InfoCardLogin";
+import { toast } from "react-toastify";
 import "../styles/Kodchasan.css";
 import "../styles/Colors.css";
 
@@ -39,8 +40,11 @@ function Login() {
       console.log("Respuesta del servidor:", result);
 
       if (response.ok) {
-        alert("Inicio de sesión exitoso");
-
+        //alert("Inicio de sesión exitoso");
+        toast.success("Inicio de sesión exitoso", {
+          position: "bottom-center",
+          
+        });
         // Guardar los datos en localStorage
         localStorage.setItem("token", result.token); // Token
         localStorage.setItem("username", result.username); // Nombre
@@ -49,7 +53,11 @@ function Login() {
         // Redirige al dashboard
         navigate("/dashboard");
       } else {
-        alert(result.error || "Error en el inicio de sesión");
+        //alert(result.error || "Error en el inicio de sesión");
+        toast.error(result.error || "Error en el inicio de sesión", {
+          position: "bottom-center",
+                            
+        });
       }
     } catch (error) {
       console.error("Error en la solicitud:", error);

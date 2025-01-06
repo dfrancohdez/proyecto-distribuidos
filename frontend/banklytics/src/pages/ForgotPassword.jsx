@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { toast } from "react-toastify";
 function ForgotPassword() {
   // Estados para los pasos y datos
   const [step, setStep] = useState(1); // Controla el paso actual
@@ -25,14 +25,25 @@ function ForgotPassword() {
 
       const result = await response.json();
       if (response.ok) {
-        alert(result.message || "Código enviado al correo.");
+        //alert(result.message || "Código enviado al correo.");
+        toast.success(result.message || "Código enviado al correo.", {
+          position: "bottom-center",
+          
+        });
         setStep(2); // Avanza al paso 2
       } else {
-        alert(result.error || "Error al enviar el código.");
+        //alert(result.error || "Error al enviar el código.");
+        toast.error(result.error || "Error al enviar el código.", {
+          position: "bottom-center",
+                            
+        });
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Hubo un error.");
+      //alert("Hubo un error.");
+      toast.error("Hubo un error.", {
+        position: "bottom-center",               
+      });
     }
   };
 
@@ -41,12 +52,19 @@ function ForgotPassword() {
     event.preventDefault();
 
     if (!code || code.trim().length !== 6) {
-      alert("Código inválido. Debe ser de 6 dígitos.");
+      //alert("Código inválido. Debe ser de 6 dígitos.");
+      toast.error("Código inválido. Debe ser de 6 dígitos.", {
+        position: "bottom-center",               
+      });
       return;
     }
 
     setStoredCode(code.trim()); // Almacena el código temporalmente
-    alert("Código validado. Continúa con el cambio de contraseña.");
+    //alert("Código validado. Continúa con el cambio de contraseña.");
+    toast.success("Código validado. Continúa con el cambio de contraseña.", {
+      position: "bottom-center",
+                        
+    });
     setStep(3); // Avanza al paso 3
   };
 
@@ -61,7 +79,7 @@ function ForgotPassword() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/reset-password`,
+        `${import.meta.env.VITE_API_URL}/users/accountrecovery`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -74,11 +92,19 @@ function ForgotPassword() {
         setSuccess(true); // Muestra el mensaje final
         setStep(4); // Avanza al paso 4 (Confirmación final)
       } else {
-        alert(result.error || "Error al restablecer contraseña.");
+        //alert(result.error || "Error al restablecer contraseña.");
+        toast.error(result.error || "Error al restablecer contraseña.", {
+          position: "bottom-center",
+                            
+        });
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Hubo un error.");
+      //alert("Hubo un error.");
+      toast.error("Hubo un error.", {
+        position: "bottom-center",
+                          
+      });
     }
   };
 

@@ -1,6 +1,7 @@
 import ArchivoCard from "./ArchivoCard";
 import { uploadFile } from "../api/statements"; // API para subir archivo
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 function Sidebar() {
   const [isUploading, setIsUploading] = useState(false); // Estado de carga
@@ -29,10 +30,18 @@ function Sidebar() {
             const result = await uploadFile(file);
             console.log("Resultado:", result); // Mostrar respuesta en consola
 
-            alert("Archivo subido con éxito.");
+            //alert("Archivo subido con éxito.");
+            toast.success("Archivo subido con éxito.", {
+              position: "bottom-center",
+              
+            });
           } catch (error) {
             console.error("Error al subir archivo:", error);
-            alert("Hubo un error al subir el archivo.");
+            //alert("Hubo un error al subir el archivo.");
+            toast.error("Hubo un error al subir el archivo.", {
+              position: "bottom-center",
+                                
+            });
           } finally {
             setIsUploading(false); // Finalizar estado de carga
           }

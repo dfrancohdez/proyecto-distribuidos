@@ -8,7 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Categories from "./pages/Categories";
 import Movements from "./pages/Movements";
 import Profile from "./pages/Profile";
-
+import { ToastContainer, toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <Router>
@@ -73,6 +74,7 @@ function App() {
           }
         />
       </Routes>
+      <ToastContainer />
     </Router>
   );
 }

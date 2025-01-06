@@ -5,7 +5,7 @@ import FileList from "../components/FileList"; // Lista de archivos
 import BackgroundShapes from "../components/BackgroundShapes";
 import "boxicons/css/boxicons.min.css";
 import { useNavigate } from "react-router-dom"; // Para regresar y redirigir
-
+import { toast } from "react-toastify";
 function Profile() {
   const [username, setUsername] = useState("Usuario");
   const [email, setEmail] = useState("Correo no disponible");
@@ -43,19 +43,31 @@ function Profile() {
 
       const result = await response.json();
       if (response.ok) {
-        alert("Nombre actualizado con éxito.");
+        //alert("Nombre actualizado con éxito.");
 
+        toast.success("Nombre actualizado con éxito.", {
+          position: "bottom-center",
+          
+        });
         // Actualizar datos en localStorage
         localStorage.setItem("username", newName);
 
         // Actualizar estado local
         setUsername(newName);
       } else {
-        alert(result.error || "Error al actualizar el nombre.");
+        //alert(result.error || "Error al actualizar el nombre.");
+        toast.error(result.error || "Error al actualizar el nombre.", {
+          position: "bottom-center",
+                            
+        });
       }
     } catch (error) {
       console.error("Error al actualizar:", error);
-      alert("Ocurrió un error inesperado.");
+      //alert("Ocurrió un error inesperado.");
+      toast.error("Ocurrió un error inesperado.", {
+        position: "bottom-center",
+                          
+      });
     }
   };
 

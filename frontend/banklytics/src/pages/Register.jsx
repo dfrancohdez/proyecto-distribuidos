@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // Importar el hook
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import InfoCardRegister from "../components/InfoCardRegister";
+import { toast } from "react-toastify";
 import "../styles/Kodchasan.css";
 import "../styles/Colors.css";
 
@@ -43,10 +44,18 @@ function Register() {
       console.log("Respuesta del servidor:", result);
 
       if (response.ok) {
-        alert("Registro exitoso. Se ha enviado un código de confirmación.");
+        //alert("Registro exitoso. Se ha enviado un código de confirmación.");
+        toast.success("Registro exitoso. Se ha enviado un código de confirmación.", {
+          position: "bottom-center",
+          
+        });
         setStep(2); // Avanza al siguiente paso (confirmar código)
       } else {
-        alert(result.error || "Error en el registro");
+        //alert(result.error || "Error en el registro");
+        toast.error(result.error || "Error en el registro", {
+          position: "bottom-center",
+                            
+        });
       }
     } catch (error) {
       console.error("Error en la solicitud:", error);
@@ -73,10 +82,18 @@ function Register() {
       console.log("Respuesta del servidor:", result);
 
       if (response.ok) {
-        alert("Correo confirmado con éxito. Ahora puedes iniciar sesión.");
+        //alert("Correo confirmado con éxito. Ahora puedes iniciar sesión.");
+        toast.success("Correo confirmado con éxito. Ahora puedes iniciar sesión.", {
+          position: "bottom-center",
+          
+        });
         navigate("/"); // Redirige al login
       } else {
-        alert(result.error || "Error al confirmar el código.");
+        //alert(result.error || "Error al confirmar el código.");
+        toast.error(result.error || "Error al confirmar el código.", {
+          position: "bottom-center",
+                            
+        });
       }
     } catch (error) {
       console.error("Error en la solicitud:", error);

@@ -1,5 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL;
-
+import { toast } from "react-toastify";
 export const uploadFile = async (file) => {
     try {
         // Crear un nombre único para el archivo
@@ -29,7 +29,11 @@ export const uploadFile = async (file) => {
         return result;
     } catch (error) {
         console.error("Error en uploadFile:", error.message);
-        alert(error.message || "Error inesperado.");
+        //alert(error.message || "Error inesperado.");
+        toast.error(error.message || "Error inesperado.", {
+            position: "bottom-center",
+            
+          });
         throw error; // Re-lanza el error
     }
 };
