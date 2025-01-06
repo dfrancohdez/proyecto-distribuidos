@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken'; // Para decodificar el token JWT
 
 // Configuración inicial
 dotenv.config();
@@ -12,11 +13,11 @@ const response = (statusCode, body) => {
     return {
         statusCode,
         headers: {
-            "Content-Type": "application/octet-stream",
+            "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*", // Habilita CORS
-            "Access-Control-Allow-Methods": "OPTIONS,POST", // Métodos permitidos
+            "Access-Control-Allow-Methods": "OPTIONS,POST",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Allow-Credentials": true, // Encabezados permitidos
+            "Access-Control-Allow-Credentials": true,
         },
         body: JSON.stringify(body),
     };
@@ -30,8 +31,28 @@ export const handler = async (event) => {
         // **Manejo explícito del preflight OPTIONS**
         if (event.httpMethod === 'OPTIONS') {
             console.log("Solicitud OPTIONS recibida.");
-            return response(200, { message: "CORS habilitado." }); // Responde al preflight
+            return response(200, { message: "CORS habilitado." });
         }
+
+        // Validar encabezado de autorización
+        const authHeader = event.headers.x-token;
+        if (!authHeader) {
+            console.error("Falta el encabezado de autorización.");
+            return response(401, { error: "No autorizado. Falta el token." });
+        }
+
+        // Decodificar el token para obtener el ID del usuario
+        const token = authHeader; // Asume formato "Bearer <token>"
+        let userId;
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET); // Reemplaza con tu clave secreta JWT
+            userId = decoded.id; // Cambia "id" si tu token tiene otra estructura
+        } catch (err) {
+            console.error("Token inválido:", err);
+            return response(401, { error: "Token inválido o expirado." });
+        }
+
+        console.log("ID del usuario extraído del token:", userId);
 
         // Validar que el archivo llegue como binario
         if (!event.body || !event.isBase64Encoded) {
@@ -41,7 +62,7 @@ export const handler = async (event) => {
 
         // Obtener parámetros desde query string
         const queryParams = event.queryStringParameters || {};
-        const fileName = queryParams.fileName; // Nombre del archivo
+        const fileName = event.headers.x-file-name; // Nombre del archivo
 
         if (!fileName) {
             console.error("Falta el nombre del archivo.");
@@ -66,7 +87,7 @@ export const handler = async (event) => {
         // Parámetros para S3
         const params = {
             Bucket: BUCKET_NAME,
-            Key: `bank-statements/${Date.now()}_${fileName}`,
+            Key: `${userId}_${fileName}`, // Usar el ID del usuario en lugar de la fecha
             Body: Buffer.from(event.body, 'base64'), // Convierte Base64 a binario
             ContentType: fileExtension === '.csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         };
@@ -88,4 +109,3 @@ export const handler = async (event) => {
         return response(500, { error: error.message });
     }
 };
-
