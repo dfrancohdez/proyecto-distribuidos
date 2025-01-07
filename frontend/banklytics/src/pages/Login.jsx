@@ -6,6 +6,7 @@ import InfoCard from "../components/InfoCardLogin";
 import { toast } from "react-toastify";
 import "../styles/Kodchasan.css";
 import "../styles/Colors.css";
+import { loginUser } from "../api/auth"; // Importar la función de login
 
 function Login() {
   // Estados para capturar datos
@@ -25,16 +26,7 @@ function Login() {
     console.log("Datos enviados:", data); // Log para validar los datos antes de enviarlos
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/login`, // Endpoint de la API
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data), // Convertir datos a JSON
-        }
-      );
+      const response = await loginUser(data); // Llamada a la API para iniciar sesión
 
       const result = await response.json();
       console.log("Respuesta del servidor:", result);

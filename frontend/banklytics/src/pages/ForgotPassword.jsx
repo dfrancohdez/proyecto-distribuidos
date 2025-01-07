@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { forgotPassword, resetPassword } from "../api/auth";
+
 function ForgotPassword() {
   // Estados para los pasos y datos
   const [step, setStep] = useState(1); // Controla el paso actual
@@ -14,14 +16,7 @@ function ForgotPassword() {
     event.preventDefault();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/forgot-password`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await forgotPassword(email); // Llamada a la API para enviar código
 
       const result = await response.json();
       if (response.ok) {
@@ -78,14 +73,7 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/accountrecovery`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, code: storedCode, password }),
-        }
-      );
+      const response = await resetPassword(email, storedCode, password); // Llamada a la API para restablecer contraseña
 
       const result = await response.json();
       if (response.ok) {
