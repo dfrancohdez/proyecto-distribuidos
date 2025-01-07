@@ -37,3 +37,26 @@ export const uploadFile = async (file) => {
         throw error; // Re-lanza el error
     }
 };
+
+export const getUserFiles = async () => {
+    try {
+        const response = await fetch(`${API_URL}/bank-statements/files`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-token": localStorage.getItem("token"),
+            },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Error al obtener los archivos.");
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Error en getFiles:", error.message);
+        throw error;
+    }
+};

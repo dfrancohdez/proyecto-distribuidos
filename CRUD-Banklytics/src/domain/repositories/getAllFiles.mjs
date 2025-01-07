@@ -5,7 +5,8 @@ export const getAllFilesRepo = async(stage, user) => {
     if (query.Items) {
         const items = query.Items;
         const formatted = items.map((item) => ({
-            filename: item.sk
+            filename: item.sk,
+            uploadDate: item.uploadDate
         }));
         return { httpStatus: 200, message: formatted };
     } else {

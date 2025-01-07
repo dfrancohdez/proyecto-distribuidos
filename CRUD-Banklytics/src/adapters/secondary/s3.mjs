@@ -3,15 +3,22 @@ import { S3Client, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client
 const client = new S3Client({ region: "us-east-1" });
 
 export const deleteFileS3 = async(key) => {
-    const params = {
+    const params1 = {
         Bucket: "banklytics-storage",
-        Key: key,
+        Key: `processed/${key}`,
     }
 
-    const command = new DeleteObjectCommand(params);
+    const params2 = {
+        Bucket: "banklytics-storage",
+        Key: `incoming/${key}`,
+    }
+
+    const command1 = new DeleteObjectCommand(params1);
+    const command2 = new DeleteObjectCommand(params2);
     try {
-        const response = await client.send(command);
-        return response;
+        const response1 = await client.send(command1);
+        const response2 = await client.send(command2);
+        return response2;
     } catch (error) {
         return { message: "Error deleting file", error: error.message };
     }
@@ -20,7 +27,7 @@ export const deleteFileS3 = async(key) => {
 export const getObjectFile = async(key) => {
     const params = {
         Bucket: "banklytics-storage",
-        Key: key,
+        Key: `processed/${key}`,
     }
 
     const command = new GetObjectCommand(params);

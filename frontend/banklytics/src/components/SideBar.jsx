@@ -1,10 +1,45 @@
 import ArchivoCard from "./ArchivoCard";
-import { uploadFile } from "../api/statements"; // API para subir archivo
-import { useState } from "react";
+import { uploadFile, getUserFiles } from "../api/statements"; // API para subir archivo
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
 
 function Sidebar() {
-  const [isUploading, setIsUploading] = useState(false); // Estado de carga
+  const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+  const [archivos, setArchivos] = useState([]);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      setIsUploadingFiles(true);
+      try {
+        const result = await getUserFiles();
+        console.log("Resultado de archivos:", result);
+        const files = result.files || [];
+        if (files && files.length > 0) {
+          setArchivos(files);
+        } else {
+          setArchivos([]);
+        }
+      } catch (error) {
+        console.error("Error al obtener archivos:", error);
+        toast.error("Error al obtener los archivos.", {
+          position: "bottom-center",
+        });
+      } finally {
+        setIsUploadingFiles(false);
+      }
+    };
+
+    fetchFiles();
+  }, []);
+
+  function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0'); // Obtener día y agregar ceros iniciales
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtener mes y agregar ceros iniciales
+    const year = date.getFullYear(); // Obtener año
+    return `${day}-${month}-${year}`; // Retornar la fecha en formato DD-MM-YYYY
+  }
 
   // Manejar la selección del archivo
   const handleFileSelect = async () => {
@@ -33,8 +68,14 @@ function Sidebar() {
             //alert("Archivo subido con éxito.");
             toast.success("Archivo subido con éxito.", {
               position: "bottom-center",
-              
             });
+
+            // Actualizar lista de archivos
+            setArchivos((prevArchivos) => [
+              ...prevArchivos,
+              { filename: file.name, uploadDate: formatDate(new Date()) },
+            ]);
+
           } catch (error) {
             console.error("Error al subir archivo:", error);
             //alert("Hubo un error al subir el archivo.");
@@ -59,18 +100,23 @@ function Sidebar() {
         Mis archivos
       </h2>
 
-      {/* Lista de archivos */}
-      <ul className="space-y-4">
-        <li>
-          <ArchivoCard titulo="Archivo 1" fecha="dd-mm-yy" />
-        </li>
-        <li>
-          <ArchivoCard titulo="Archivo 2" fecha="dd-mm-yy" />
-        </li>
-        <li>
-          <ArchivoCard titulo="Archivo 3" fecha="dd-mm-yy" />
-        </li>
-      </ul>
+      {isUploadingFiles ? (
+        <div className="flex justify-center items-center h-64">
+          <ClipLoader size={40} color={"#eaeaea"} loading={isUploadingFiles} />
+        </div>
+      ) : (
+        <ul className="space-y-4">
+          {archivos.length > 0 ? (
+            archivos.map((archivo, index) => (
+              <li key={index}>
+                <ArchivoCard titulo={archivo.filename} fecha={archivo.uploadDate} />
+              </li>
+            ))
+          ) : (
+            <li>No se encontraron archivos.</li>
+          )}
+        </ul>
+      )}
 
       {/* Botón de carga */}
       <div className="flex justify-center mt-4">

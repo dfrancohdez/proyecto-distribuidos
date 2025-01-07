@@ -4,6 +4,13 @@ import { QueryCommand, DynamoDBDocumentClient, PutCommand, DeleteCommand } from 
 const client = new DynamoDBClient({ region: "us-east-1" });
 const doClient = DynamoDBDocumentClient.from(client);
 
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0'); // Obtener día y agregar ceros iniciales
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtener mes y agregar ceros iniciales
+    const year = date.getFullYear(); // Obtener año
+    return `${day}-${month}-${year}`; // Retornar la fecha en formato DD-MM-YYYY
+}
+
 export const getAllFiles = async(stage, user) => {
     const params = {
         TableName: `${stage}-banklytics-db`,
@@ -25,6 +32,7 @@ export const addFile = async(stage, user, file) => {
         Item: {
             pk: `USR#${user}`,
             sk: `${file}`,
+            uploadDate: formatDate(new Date())
         },
         ReturnValues: "ALL_OLD",
         ConditionExpression: "attribute_not_exists(sk)",
