@@ -60,3 +60,49 @@ export const getUserFiles = async () => {
         throw error;
     }
 };
+
+export const deleteFile = async (fileId) => {
+    try {
+        const response = await fetch(`${API_URL}/bank-statements/files/${fileId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "x-token": localStorage.getItem("token"),
+            },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Error al eliminar el archivo.");
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Error en deleteFile:", error.message);
+        throw error;
+    }
+}
+
+export const getTransactions = async (fileId) => {
+    try {
+        const response = await fetch(`${API_URL}/bank-statements/files/${fileId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-token": localStorage.getItem("token"),
+            },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Error al obtener las transacciones.");
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Error en getTransactions:", error.message);
+        throw error;
+    }
+}

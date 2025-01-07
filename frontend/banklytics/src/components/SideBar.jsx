@@ -1,5 +1,5 @@
 import ArchivoCard from "./ArchivoCard";
-import { uploadFile, getUserFiles } from "../api/statements"; // API para subir archivo
+import { uploadFile, getUserFiles, deleteFile, getTransactions } from "../api/statements"; // API para subir archivo
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
@@ -8,6 +8,7 @@ function Sidebar() {
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [archivos, setArchivos] = useState([]);
+  const [transacciones, setTransacciones] = useState([]);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -53,6 +54,15 @@ function Sidebar() {
       const file = event.target.files[0]; // Obtener archivo seleccionado
 
       if (file) {
+        const fileExists = archivos.some((archivo) => archivo.filename === file.name);
+
+        if (fileExists) {
+          toast.warning(`El archivo "${file.name}" ya ha sido subido.`, {
+            position: "bottom-center",
+          });
+          return; // Detener la carga si el archivo ya existe
+        }
+        
         const confirmUpload = window.confirm(
           `¿Subir el archivo: ${file.name}?`
         );
@@ -61,9 +71,22 @@ function Sidebar() {
           try {
             setIsUploading(true); // Estado de carga activado
 
+            toast.info("Subiendo archivo...", {
+              position: "bottom-center",
+              autoClose: 2000, // Mantener el toast visible por 3 segundos
+            });
+
             // Subir el archivo usando la API
             const result = await uploadFile(file);
             console.log("Resultado:", result); // Mostrar respuesta en consola
+
+            toast.info("Procesando archivo...", {
+              position: "bottom-center",
+              autoClose: 20000, // Mantener el toast visible por 15 segundos
+            });
+        
+            // Retardo de 15 segundos
+            await new Promise((resolve) => setTimeout(resolve, 20000));
 
             //alert("Archivo subido con éxito.");
             toast.success("Archivo subido con éxito.", {
@@ -93,6 +116,54 @@ function Sidebar() {
     fileInput.click(); // Abrir el selector de archivos
   };
 
+  const handleFileTransactions = async (filename) => {
+    try {
+      const result = await getTransactions(filename);
+      console.log("Resultado de transacciones:", result);
+
+      const transacResult = result.data || []; //Aquí están los datos del excel
+      console.log("Transacciones:", transacResult);
+
+    } catch (error) {
+      console.error("Error al obtener transacciones:", error);
+      toast.error("Error al obtener las transacciones.", {
+        position: "bottom-center",
+      });
+    }
+  };
+
+  const handleDeleteFile = async (filename) => {
+    try {
+      const confirmDelete = window.confirm(
+        `¿Eliminar el archivo: ${filename}?`
+      );
+
+      if (confirmDelete) {
+        const result = await deleteFile(filename);
+        console.log("Resultado de eliminación:", result);
+
+        const newFiles = archivos.filter(
+          (archivo) => archivo.filename !== filename
+        );
+        setArchivos(newFiles);
+
+        const newTransac = transacciones.filter(
+          (archivo) => archivo.name !== filename
+        );
+        setTransacciones(newTransac);
+        
+        toast.success("Archivo eliminado con éxito.", {
+          position: "bottom-center",
+        });
+      }
+    } catch (error) {
+      console.error("Error al eliminar archivo:", error);
+      toast.error("Error al eliminar el archivo.", {
+        position: "bottom-center",
+      });
+    }
+  };
+
   return (
     <div className="w-1/4 h-full bg-white border-r p-4">
       {/* Título con raya debajo */}
@@ -109,7 +180,11 @@ function Sidebar() {
           {archivos.length > 0 ? (
             archivos.map((archivo, index) => (
               <li key={index}>
-                <ArchivoCard titulo={archivo.filename} fecha={archivo.uploadDate} />
+                <ArchivoCard 
+                  titulo={archivo.filename}
+                  fecha={archivo.uploadDate} 
+                  onClick={() => handleFileTransactions(archivo.filename)}
+                  onDelete={() => handleDeleteFile(archivo.filename)}/>
               </li>
             ))
           ) : (
