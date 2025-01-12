@@ -6,6 +6,8 @@ import BackgroundShapes from "../components/BackgroundShapes";
 import "boxicons/css/boxicons.min.css";
 import { useNavigate } from "react-router-dom"; // Para regresar y redirigir
 import { toast } from "react-toastify";
+import { updateUser } from "../api/auth";
+
 function Profile() {
   const [username, setUsername] = useState("Usuario");
   const [email, setEmail] = useState("Correo no disponible");
@@ -26,20 +28,7 @@ function Profile() {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/update`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            email: email, // Mantener el correo actual
-            name: newName, // Solo actualiza el nombre
-          }),
-        }
-      );
+      const response = await updateUser({ email: email, name: newName});
 
       const result = await response.json();
       if (response.ok) {
