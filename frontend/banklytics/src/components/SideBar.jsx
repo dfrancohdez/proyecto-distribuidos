@@ -82,11 +82,11 @@ function Sidebar() {
 
             toast.info("Procesando archivo...", {
               position: "bottom-center",
-              autoClose: 20000, // Mantener el toast visible por 15 segundos
+              autoClose: 25000, // Mantener el toast visible por 15 segundos
             });
         
             // Retardo de 15 segundos
-            await new Promise((resolve) => setTimeout(resolve, 20000));
+            await new Promise((resolve) => setTimeout(resolve, 25000));
 
             //alert("Archivo subido con éxito.");
             toast.success("Archivo subido con éxito. En caso de no aparecer su archivo, recargue la página en unos minutos", {

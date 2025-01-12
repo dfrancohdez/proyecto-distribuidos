@@ -1,4 +1,4 @@
-import { S3Client, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const client = new S3Client({ region: "us-east-1" });
 
@@ -36,5 +36,23 @@ export const getObjectFile = async(key) => {
         return response;
     } catch (error) {
         return { message: "Error getting file", error: error.message };
+    }
+}
+
+export const putObjectFile = async(key, body) => {
+    const fileExtension = key.substring(key.lastIndexOf('.')).toLowerCase();
+    const params = {
+        Bucket: "banklytics-storage",
+        Key: `incoming/${key}`,
+        Body: body,
+        ContentType: fileExtension === '.csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    }
+
+    const command = new PutObjectCommand(params);
+    try {
+        const response = await client.send(command);
+        return response;
+    } catch (error) {
+        return { message: "Error putting file", error: error.message };
     }
 }
