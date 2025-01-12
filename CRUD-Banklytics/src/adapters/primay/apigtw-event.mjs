@@ -23,6 +23,7 @@ export const apiFiles = async (event) => {
     const stage = event.requestContext.stage;
     const resource = event.resource;
     const method = event.httpMethod;
+    console.log("Decoding token");
     const payload = await validateTokenUC(xMytoken);
     if (!payload) {
         return response(401, { message: "Invalid token" });

@@ -10,28 +10,28 @@ function Sidebar() {
   const [archivos, setArchivos] = useState([]);
   const [transacciones, setTransacciones] = useState([]);
 
-  useEffect(() => {
-    const fetchFiles = async () => {
-      setIsUploadingFiles(true);
-      try {
-        const result = await getUserFiles();
-        console.log("Resultado de archivos:", result);
-        const files = result.files || [];
-        if (files && files.length > 0) {
-          setArchivos(files);
-        } else {
-          setArchivos([]);
-        }
-      } catch (error) {
-        console.error("Error al obtener archivos:", error);
-        toast.error("Error al obtener los archivos.", {
-          position: "bottom-center",
-        });
-      } finally {
-        setIsUploadingFiles(false);
+  const fetchFiles = async () => {
+    setIsUploadingFiles(true);
+    try {
+      const result = await getUserFiles();
+      console.log("Resultado de archivos:", result);
+      const files = result.files || [];
+      if (files && files.length > 0) {
+        setArchivos(files);
+      } else {
+        setArchivos([]);
       }
-    };
+    } catch (error) {
+      console.error("Error al obtener archivos:", error);
+      toast.error("Error al obtener los archivos.", {
+        position: "bottom-center",
+      });
+    } finally {
+      setIsUploadingFiles(false);
+    }
+  };
 
+  useEffect(() => {
     fetchFiles();
   }, []);
 
@@ -89,15 +89,16 @@ function Sidebar() {
             await new Promise((resolve) => setTimeout(resolve, 20000));
 
             //alert("Archivo subido con éxito.");
-            toast.success("Archivo subido con éxito.", {
+            toast.success("Archivo subido con éxito. En caso de no aparecer su archivo, recargue la página en unos minutos", {
               position: "bottom-center",
             });
 
+            fetchFiles();
             // Actualizar lista de archivos
-            setArchivos((prevArchivos) => [
-              ...prevArchivos,
-              { filename: file.name, uploadDate: formatDate(new Date()) },
-            ]);
+            // setArchivos((prevArchivos) => [
+            //   ...prevArchivos,
+            //   { filename: file.name, uploadDate: formatDate(new Date()) },
+            // ]);
 
           } catch (error) {
             console.error("Error al subir archivo:", error);

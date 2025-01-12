@@ -1,6 +1,7 @@
 import { getAllFiles } from "../../adapters/secondary/dynamodb.mjs";
 
 export const getAllFilesRepo = async(stage, user) => {
+    console.log("Getting all user files");
     const query = await getAllFiles(stage, user);
     if (query.Items) {
         const items = query.Items;
