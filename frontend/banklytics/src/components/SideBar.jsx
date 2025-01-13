@@ -1,10 +1,15 @@
 import ArchivoCard from "./ArchivoCard";
-import { uploadFile, getUserFiles, deleteFile, getTransactions } from "../api/statements"; // API para subir archivo
+import {
+  uploadFile,
+  getUserFiles,
+  deleteFile,
+  getTransactions,
+} from "../api/statements"; // API para subir archivo
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
 
-function Sidebar() {
+function Sidebar({ onData }) {
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [archivos, setArchivos] = useState([]);
@@ -36,25 +41,24 @@ function Sidebar() {
   }, []);
 
   function formatDate(date) {
-    const day = String(date.getDate()).padStart(2, '0'); // Obtener día y agregar ceros iniciales
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtener mes y agregar ceros iniciales
+    const day = String(date.getDate()).padStart(2, "0"); // Obtener día y agregar ceros iniciales
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Obtener mes y agregar ceros iniciales
     const year = date.getFullYear(); // Obtener año
     return `${day}-${month}-${year}`; // Retornar la fecha en formato DD-MM-YYYY
   }
 
-  // Manejar la selección del archivo
   const handleFileSelect = async () => {
-    // Crear un input para seleccionar archivo
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = ".csv, .xlsx"; // Formatos aceptados
 
-    // Evento cuando se selecciona un archivo
     fileInput.onchange = async (event) => {
       const file = event.target.files[0]; // Obtener archivo seleccionado
 
       if (file) {
-        const fileExists = archivos.some((archivo) => archivo.filename === file.name);
+        const fileExists = archivos.some(
+          (archivo) => archivo.filename === file.name
+        );
 
         if (fileExists) {
           toast.warning(`El archivo "${file.name}" ya ha sido subido.`, {
@@ -62,7 +66,7 @@ function Sidebar() {
           });
           return; // Detener la carga si el archivo ya existe
         }
-        
+
         const confirmUpload = window.confirm(
           `¿Subir el archivo: ${file.name}?`
         );
@@ -73,39 +77,31 @@ function Sidebar() {
 
             toast.info("Subiendo archivo...", {
               position: "bottom-center",
-              autoClose: 2000, // Mantener el toast visible por 3 segundos
+              autoClose: 2000, // Mantener el toast visible por 2 segundos
             });
 
-            // Subir el archivo usando la API
             const result = await uploadFile(file);
-            console.log("Resultado:", result); // Mostrar respuesta en consola
+            console.log("Resultado:", result);
 
             toast.info("Procesando archivo...", {
               position: "bottom-center",
-              autoClose: 25000, // Mantener el toast visible por 15 segundos
+              autoClose: 25000, // Mantener el toast visible por 25 segundos
             });
-        
-            // Retardo de 15 segundos
-            await new Promise((resolve) => setTimeout(resolve, 25000));
 
-            //alert("Archivo subido con éxito.");
-            toast.success("Archivo subido con éxito. En caso de no aparecer su archivo, recargue la página en unos minutos", {
-              position: "bottom-center",
-            });
+            await new Promise((resolve) => setTimeout(resolve, 25000)); // Retardo de 25 segundos
+
+            toast.success(
+              "Archivo subido con éxito. En caso de no aparecer, recargue la página.",
+              {
+                position: "bottom-center",
+              }
+            );
 
             fetchFiles();
-            // Actualizar lista de archivos
-            // setArchivos((prevArchivos) => [
-            //   ...prevArchivos,
-            //   { filename: file.name, uploadDate: formatDate(new Date()) },
-            // ]);
-
           } catch (error) {
             console.error("Error al subir archivo:", error);
-            //alert("Hubo un error al subir el archivo.");
             toast.error("Hubo un error al subir el archivo.", {
               position: "bottom-center",
-                                
             });
           } finally {
             setIsUploading(false); // Finalizar estado de carga
@@ -114,7 +110,7 @@ function Sidebar() {
       }
     };
 
-    fileInput.click(); // Abrir el selector de archivos
+    fileInput.click();
   };
 
   const handleFileTransactions = async (filename) => {
@@ -122,9 +118,40 @@ function Sidebar() {
       const result = await getTransactions(filename);
       console.log("Resultado de transacciones:", result);
 
-      const transacResult = result.data || []; //Aquí están los datos del excel
-      console.log("Transacciones:", transacResult);
+      const transacResult = result.data || []; // Aquí están los datos del excel
+      console.log("Transacciones recibidas:", transacResult);
 
+      // Agrupar por categoría (clase)
+      const groupedByClass = transacResult.reduce((acc, item) => {
+        const clase = item.Clase || "Sin Clase"; // Usa "Sin Clase" si no tiene categoría
+        if (!acc[clase]) {
+          acc[clase] = [];
+        }
+        acc[clase].push(item);
+        return acc;
+      }, {});
+
+      console.log("Datos agrupados por clase:", groupedByClass);
+
+      // Ordenar de mayor a menor por monto
+      const sortedByAmount = [...transacResult].sort(
+        (a, b) => b.Monto - a.Monto
+      );
+
+      console.log(
+        "Datos ordenados de mayor a menor por monto:",
+        sortedByAmount
+      );
+
+      // Actualizar estado con transacciones
+      setTransacciones(transacResult);
+
+      // Enviar datos agrupados, ordenados y originales al Dashboard
+      onData({
+        original: transacResult,
+        grouped: groupedByClass,
+        sorted: sortedByAmount,
+      });
     } catch (error) {
       console.error("Error al obtener transacciones:", error);
       toast.error("Error al obtener las transacciones.", {
@@ -148,11 +175,6 @@ function Sidebar() {
         );
         setArchivos(newFiles);
 
-        const newTransac = transacciones.filter(
-          (archivo) => archivo.name !== filename
-        );
-        setTransacciones(newTransac);
-        
         toast.success("Archivo eliminado con éxito.", {
           position: "bottom-center",
         });
@@ -167,7 +189,6 @@ function Sidebar() {
 
   return (
     <div className="w-1/4 h-full bg-white border-r p-4">
-      {/* Título con raya debajo */}
       <h2 className="text-lg mb-4 border-b-2 border-gray-200 pb-2">
         Mis archivos
       </h2>
@@ -181,11 +202,12 @@ function Sidebar() {
           {archivos.length > 0 ? (
             archivos.map((archivo, index) => (
               <li key={index}>
-                <ArchivoCard 
+                <ArchivoCard
                   titulo={archivo.filename}
-                  fecha={archivo.uploadDate} 
+                  fecha={archivo.uploadDate}
                   onClick={() => handleFileTransactions(archivo.filename)}
-                  onDelete={() => handleDeleteFile(archivo.filename)}/>
+                  onDelete={() => handleDeleteFile(archivo.filename)}
+                />
               </li>
             ))
           ) : (
@@ -194,14 +216,13 @@ function Sidebar() {
         </ul>
       )}
 
-      {/* Botón de carga */}
       <div className="flex justify-center mt-4">
         <button
           className={`w-36 bgPurpple text-white py-2 rounded-full hover:bg-white hover:textPurpple hover:borderPurpple transition duration-200 ${
             isUploading ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          onClick={handleFileSelect} // Ejecuta selección de archivo
-          disabled={isUploading} // Desactiva botón durante la carga
+          onClick={handleFileSelect}
+          disabled={isUploading}
         >
           {isUploading ? "Cargando..." : "Cargar archivo"}
         </button>
