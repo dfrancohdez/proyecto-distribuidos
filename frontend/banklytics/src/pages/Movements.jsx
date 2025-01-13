@@ -1,49 +1,85 @@
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import ChartCardMovements from "../components/ChartCardMovements";
-import TableMovements from "../components/TableMovements";
 import "../styles/Colors.css";
-
-// Importar los estilos de Boxicons
 import "boxicons/css/boxicons.min.css";
 
 function Movements() {
-  // Variables para el nombre del archivo y la fecha
-  const fileName = "Reporte_2024";
-  const fileDate = "31/12/2024";
-
-  // Datos para la gráfica circular (categorías)
-  const pieData = {
-    labels: ["LED 32", "USB", "Disco duro", "Teclado", "Monitor", "Lector"],
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("Usuario");
+  const [showMenu, setShowMenu] = useState(false);
+  const [barData, setBarData] = useState({
+    labels: [],
     datasets: [
       {
-        data: [28, 8, 20, 11, 8, 25],
+        label: "Montos por Concepto",
+        data: [],
         backgroundColor: [
-          "#FF6384", // Rojo
-          "#36A2EB", // Azul
-          "#FFCE56", // Amarillo
-          "#4BC0C0", // Verde
-          "#9966FF", // Morado
-          "#FF9F40", // Naranja
+          "#F87171",
+          "#60A5FA",
+          "#FACC15",
+          "#34D399",
+          "#A78BFA",
+          "#FF9F40",
         ],
       },
     ],
-  };
+  });
+  const [tableData, setTableData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
 
-  // Datos para la gráfica de barras (movimientos)
-  const barData = {
-    labels: ["Luz", "TV", "Agua", "Botanas", "Internet"],
-    datasets: [
-      {
-        label: "Movimientos",
-        data: [10, 15, 12, 18, 20],
-        backgroundColor: [
-          "#F87171", // Rojo claro
-          "#60A5FA", // Azul claro
-          "#FACC15", // Amarillo
-          "#34D399", // Verde esmeralda
-          "#A78BFA", // Morado claro
+  // Obtener datos del estado y configurar usuario y tabla
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+
+    if (location.state && location.state.sortedData) {
+      const sorted = location.state.sortedData;
+
+      // Configurar la gráfica de barras
+      const barChartLabels = sorted.map((item) => item.Concepto);
+      const barChartData = sorted.map((item) => item.Monto);
+
+      setBarData({
+        labels: barChartLabels,
+        datasets: [
+          {
+            label: "Montos por Concepto",
+            data: barChartData,
+            backgroundColor: [
+              "#F87171",
+              "#60A5FA",
+              "#FACC15",
+              "#34D399",
+              "#A78BFA",
+              "#FF9F40",
+            ],
+          },
         ],
-      },
-    ],
+      });
+
+      // Configurar datos de la tabla
+      setTableData(sorted);
+    }
+  }, [location.state]);
+
+  // Calcular los datos para la página actual
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentTableData = tableData.slice(indexOfFirstRow, indexOfLastRow);
+
+  // Cambiar página
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Cerrar sesión
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    navigate("/");
   };
 
   return (
@@ -52,17 +88,41 @@ function Movements() {
       <div className="flex-1 p-6 bg-gray-50">
         {/* Encabezado */}
         <div className="flex items-center justify-between mb-6 border-b pb-4">
-          <h1 className="text-2xl text-gray-800">Información General</h1>
+          <h1 className="text-2xl text-gray-800">Información de Movimientos</h1>
 
           <div className="flex items-center gap-4">
             <div className="w-px h-8 bg-gray-300"></div>
-            <div className="flex items-center gap-2">
-              <i className="bx bxs-file text-gray-500 scale-150 hover:textPurpple cursor-pointer"></i>
-            </div>
-            <div className="w-px h-8 bg-gray-300"></div>
-            <div className="flex items-center gap-2 cursor-pointer hover:textPurpple">
-              <i className="bx bxs-user-circle text-2xl text-gray-500 scale-150 hover:textPurpple"></i>
-              <span className="text-gray-800 hover:textPurpple">Usuario</span>
+            <div className="relative">
+              <div
+                className="flex items-center gap-2 cursor-pointer hover:textPurpple"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(!showMenu);
+                }}
+              >
+                <i className="bx bxs-user-circle text-2xl text-gray-500 scale-150 hover:textPurpple"></i>
+                <span className="text-gray-800 hover:textPurpple">
+                  {username}
+                </span>
+              </div>
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                  <ul className="py-1">
+                    <li
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => navigate("/profile")}
+                    >
+                      Ver Perfil
+                    </li>
+                    <li
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500"
+                      onClick={handleLogout}
+                    >
+                      Cerrar Sesión
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -70,9 +130,9 @@ function Movements() {
         {/* Encabezado de Gráficas */}
         <div className="flex justify-between items-center mb-4 px-4">
           <span className="text-lg text-gray-500 hover:textPurpple cursor-pointer">
-            Archivo: {fileName}
+            Archivo: Reporte_2024
           </span>
-          <span className="text-lg text-gray-500">Fecha: {fileDate}</span>
+          <span className="text-lg text-gray-500">Fecha: 31/12/2024</span>
         </div>
 
         {/* Sección de Gráficas */}
@@ -83,20 +143,64 @@ function Movements() {
               <h2 className="text-xl">Movimientos</h2>
             </div>
             <div className="flex justify-center items-center h-80">
-              {/* Gráfica de barras más grande */}
+              {/* Gráfica de barras */}
               <div className="h-80 justify-center items-center flex w-full">
                 <ChartCardMovements title="" data={barData} type="bar" />
               </div>
             </div>
           </div>
 
-          {/* Sección de Tabla */}
-          <TableMovements />
+          {/* Tabla con movimientos ordenados */}
+          <div className="p-4 bg-white rounded-lg">
+            <h2 className="text-xl mb-4">Movimientos Ordenados</h2>
+            <table className="min-w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2">Fecha</th>
+                  <th className="border px-4 py-2">Concepto</th>
+                  <th className="border px-4 py-2">Monto</th>
+                  <th className="border px-4 py-2">Clase</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentTableData.map((item, index) => (
+                  <tr key={index}>
+                    <td className="border px-4 py-2">{item.Fecha}</td>
+                    <td className="border px-4 py-2">{item.Concepto}</td>
+                    <td className="border px-4 py-2">{item.Monto}</td>
+                    <td className="border px-4 py-2">{item.Clase}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Paginación */}
+            <div className="flex justify-center mt-4">
+              {Array.from(
+                { length: Math.ceil(tableData.length / rowsPerPage) },
+                (_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => paginate(index + 1)}
+                    className={`mx-1 px-3 py-1 border rounded ${
+                      currentPage === index + 1
+                        ? "bgPurpple text-white"
+                        : "bg-white text-gray-700"
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Botón Regresar */}
         <div className="flex mt-6">
-          <button className="px-6 py-2 text-sm bgPurpple text-white rounded-full hover:bg-white hover:textPurpple hover:borderPurpple transition duration-200">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="px-6 py-2 text-sm bgPurpple text-white rounded-full hover:bg-white hover:textPurpple hover:borderPurpple transition duration-200"
+          >
             Regresar
           </button>
         </div>

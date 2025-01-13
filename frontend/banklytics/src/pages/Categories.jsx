@@ -1,49 +1,89 @@
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import ChartCardCategories from "../components/ChartCardCategories";
-import TableCategories from "../components/TableCategories";
 import "../styles/Colors.css";
-
-// Importar los estilos de Boxicons
 import "boxicons/css/boxicons.min.css";
 
 function Categories() {
-  // Variables para el nombre del archivo y la fecha
-  const fileName = "Reporte_2024";
-  const fileDate = "31/12/2024";
-
-  // Datos para la gráfica circular (categorías)
-  const pieData = {
-    labels: ["LED 32", "USB", "Disco duro", "Teclado", "Monitor", "Lector"],
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("Usuario");
+  const [showMenu, setShowMenu] = useState(false);
+  const [pieData, setPieData] = useState({
+    labels: [],
     datasets: [
       {
-        data: [28, 8, 20, 11, 8, 25],
+        data: [],
         backgroundColor: [
-          "#FF6384", // Rojo
-          "#36A2EB", // Azul
-          "#FFCE56", // Amarillo
-          "#4BC0C0", // Verde
-          "#9966FF", // Morado
-          "#FF9F40", // Naranja
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
         ],
       },
     ],
-  };
+  });
+  const [tableData, setTableData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5; // Movimientos por página
 
-  // Datos para la gráfica de barras (movimientos)
-  const barData = {
-    labels: ["Luz", "TV", "Agua", "Botanas", "Internet"],
-    datasets: [
-      {
-        label: "Movimientos",
-        data: [10, 15, 12, 18, 20],
-        backgroundColor: [
-          "#F87171", // Rojo claro
-          "#60A5FA", // Azul claro
-          "#FACC15", // Amarillo
-          "#34D399", // Verde esmeralda
-          "#A78BFA", // Morado claro
+  // Obtener el usuario y los datos agrupados desde el estado de navegación
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+
+    if (location.state && location.state.groupedData) {
+      const grouped = location.state.groupedData;
+
+      // Configurar la gráfica circular
+      const pieChartLabels = Object.keys(grouped);
+      const pieChartData = Object.values(grouped).map((items) => items.length);
+
+      setPieData({
+        labels: pieChartLabels,
+        datasets: [
+          {
+            data: pieChartData,
+            backgroundColor: [
+              "#FF6384",
+              "#36A2EB",
+              "#FFCE56",
+              "#4BC0C0",
+              "#9966FF",
+              "#FF9F40",
+            ],
+          },
         ],
-      },
-    ],
+      });
+
+      // Convertir los datos agrupados en un solo arreglo para la tabla
+      const flattenedData = Object.entries(grouped).flatMap(([clase, items]) =>
+        items.map((item) => ({
+          ...item,
+          Clase: clase,
+        }))
+      );
+      setTableData(flattenedData);
+    }
+  }, [location.state]);
+
+  // Calcular los datos para la página actual
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentTableData = tableData.slice(indexOfFirstRow, indexOfLastRow);
+
+  // Cambiar página
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Cerrar sesión
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    navigate("/");
   };
 
   return (
@@ -56,13 +96,37 @@ function Categories() {
 
           <div className="flex items-center gap-4">
             <div className="w-px h-8 bg-gray-300"></div>
-            <div className="flex items-center gap-2">
-              <i className="bx bxs-file text-gray-500 scale-150 hover:textPurpple cursor-pointer"></i>
-            </div>
-            <div className="w-px h-8 bg-gray-300"></div>
-            <div className="flex items-center gap-2 cursor-pointer hover:textPurpple">
-              <i className="bx bxs-user-circle text-2xl text-gray-500 scale-150 hover:textPurpple"></i>
-              <span className="text-gray-800 hover:textPurpple">Usuario</span>
+            <div className="relative">
+              <div
+                className="flex items-center gap-2 cursor-pointer hover:textPurpple"
+                onClick={(e) => {
+                  e.stopPropagation(); // Evitar cierre del menú
+                  setShowMenu(!showMenu);
+                }}
+              >
+                <i className="bx bxs-user-circle text-2xl text-gray-500 scale-150 hover:textPurpple"></i>
+                <span className="text-gray-800 hover:textPurpple">
+                  {username}
+                </span>
+              </div>
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                  <ul className="py-1">
+                    <li
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => navigate("/profile")}
+                    >
+                      Ver Perfil
+                    </li>
+                    <li
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500"
+                      onClick={handleLogout}
+                    >
+                      Cerrar Sesión
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -70,9 +134,8 @@ function Categories() {
         {/* Encabezado de Gráficas */}
         <div className="flex justify-between items-center mb-4 px-4">
           <span className="text-lg text-gray-500 hover:textPurpple cursor-pointer">
-            Archivo: {fileName}
+            Reporte de archivo
           </span>
-          <span className="text-lg text-gray-500">Fecha: {fileDate}</span>
         </div>
 
         {/* Sección de Gráficas */}
@@ -90,13 +153,57 @@ function Categories() {
             </div>
           </div>
 
-          {/* Sección de Tabla */}
-          <TableCategories />
+          {/* Tabla con datos agrupados */}
+          <div className="p-4 bg-white rounded-lg">
+            <h2 className="text-xl mb-4">Movimientos Agrupados</h2>
+            <table className="min-w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2">Fecha</th>
+                  <th className="border px-4 py-2">Concepto</th>
+                  <th className="border px-4 py-2">Monto</th>
+                  <th className="border px-4 py-2">Clase</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentTableData.map((item, index) => (
+                  <tr key={index}>
+                    <td className="border px-4 py-2">{item.Fecha}</td>
+                    <td className="border px-4 py-2">{item.Concepto}</td>
+                    <td className="border px-4 py-2">{item.Monto}</td>
+                    <td className="border px-4 py-2">{item.Clase}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Paginación */}
+            <div className="flex justify-center mt-4">
+              {Array.from(
+                { length: Math.ceil(tableData.length / rowsPerPage) },
+                (_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => paginate(index + 1)}
+                    className={`mx-1 px-3 py-1 border rounded ${
+                      currentPage === index + 1
+                        ? "bgPurpple text-white"
+                        : "bg-white text-gray-700"
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Botón Regresar */}
         <div className="flex mt-6">
-          <button className="px-6 py-2 text-sm bgPurpple text-white rounded-full hover:bg-white hover:textPurpple hover:borderPurpple transition duration-200">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="px-6 py-2 text-sm bgPurpple text-white rounded-full hover:bg-white hover:textPurpple hover:borderPurpple transition duration-200"
+          >
             Regresar
           </button>
         </div>
@@ -104,4 +211,5 @@ function Categories() {
     </div>
   );
 }
+
 export default Categories;

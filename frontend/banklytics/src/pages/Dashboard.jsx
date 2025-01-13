@@ -43,8 +43,10 @@ function Dashboard() {
     ],
   });
   const [tableData, setTableData] = useState([]);
+  const [groupedData, setGroupedData] = useState({});
+  const [sortedData, setSortedData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage] = useState(2); // Mostrar 2 movimientos por página
+  const [rowsPerPage] = useState(2);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -108,6 +110,8 @@ function Dashboard() {
     });
 
     setTableData(original);
+    setGroupedData(grouped);
+    setSortedData(sorted);
   };
 
   const closeMenu = () => setShowMenu(false);
@@ -176,7 +180,9 @@ function Dashboard() {
               <h2 className="text-xl">Categorías</h2>
               <button
                 className="px-4 py-1 text-sm bgPurpple text-white rounded-full hover:bg-white hover:textPurpple hover:borderPurpple transition duration-200"
-                onClick={() => alert("Ver más detalles de categorías")}
+                onClick={() =>
+                  navigate("/categories", { state: { groupedData } })
+                }
               >
                 Ver más
               </button>
@@ -197,7 +203,9 @@ function Dashboard() {
               <h2 className="text-xl">Movimientos</h2>
               <button
                 className="px-4 py-1 text-sm bgPurpple text-white rounded-full hover:bg-white hover:textPurpple hover:borderPurpple transition duration-200"
-                onClick={() => alert("Ver más detalles de movimientos")}
+                onClick={() =>
+                  navigate("/movements", { state: { sortedData } })
+                }
               >
                 Ver más
               </button>
