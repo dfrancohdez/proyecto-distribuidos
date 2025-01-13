@@ -12,5 +12,5 @@ class S3Repository:
 
     def upload_file(self, bucket_name, file_key, file_path):
         file_key_root=file_key.split("/")
-        new_key = f"{file_key_root[1]}"
+        new_key = f"processed/{file_key_root[1]}"
         self.s3_client.upload_file(file_path, bucket_name, new_key)
