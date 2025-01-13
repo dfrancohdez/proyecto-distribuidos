@@ -10,17 +10,17 @@ export const handler = async (event) => {
     try {
         const route = event.routeKey || event.resource || '';
 
-        if (route.includes('register')) {
+        if (route.includes('signup')) {
             return await registerUser(event);
         } else if (route.includes('login')) {
             return await loginUser(event);
-        } else if (route.includes('update')) {
+        } else if (route.includes('profile')) {
             return await updateUser(event);
         } else if (route.includes('forgot-password')) {
             return await forgotPassword(event);
-        } else if (route.includes('reset-password')) {
+        } else if (route.includes('accountrecovery')) {
             return await resetPassword(event);
-        } else if (route.includes('confirm-email')) {
+        } else if (route.includes('email')) {
             return await confirmEmail(event);
         } else {
             return response(404, { error: 'Ruta no válida.' });

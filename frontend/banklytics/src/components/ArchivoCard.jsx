@@ -1,8 +1,23 @@
 import "../styles/Colors.css";
+import { FaTrash } from "react-icons/fa"; // Importar ícono de basura
 
-function ArchivoCard({ titulo, fecha }) {
+function ArchivoCard({ titulo, fecha, onDelete, onClick }) {
   return (
-    <div className="relative p-4 w-full h-36 bg-white border rounded-lg shadow-md hover:lightPurpple hover:scale-95 transition-transform duration-300 cursor-pointer overflow-hidden">
+    <div 
+      className="relative p-4 w-full h-36 bg-white border rounded-lg shadow-md hover:lightPurpple hover:scale-95 transition-transform duration-300 cursor-pointer overflow-hidden"
+      onClick={onClick}
+    >
+      {/* Botón de eliminar */}
+      <button
+        className="absolute top-2 left-2 text-red-600 hover:text-red-800"
+        onClick={(e) => {
+          e.stopPropagation(); // Evitar que el clic en el botón active el onClick del contenedor
+          onDelete();
+        }}
+      >
+        <FaTrash size={20} />
+      </button>
+
       {/* Segunda curva (morado tenue) */}
       <div className="absolute inset-x-0 bottom-0 h-1/2">
         <svg

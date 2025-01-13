@@ -9,7 +9,7 @@ export async function registerUser(data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
     });
-    return response.json();
+    return response;
 }
 
 // **Función para iniciar sesión**
@@ -19,7 +19,7 @@ export async function loginUser(data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
     });
-    return response.json();
+    return response;
 }
 
 // **Función para recuperar cuenta**
@@ -29,7 +29,7 @@ export async function forgotPassword(email) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
     });
-    return response.json();
+    return response;
 }
 
 // **Función para restablecer contraseña**
@@ -39,7 +39,7 @@ export async function resetPassword(email, code, password) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code, password }),
     });
-    return response.json();
+    return response;
 }
 
 // **Función para confirmar correo electrónico**
@@ -49,7 +49,7 @@ export async function confirmEmail(data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data), // { email, code }
     });
-    return response.json();
+    return response;
 }
 
 // **Función para actualizar el perfil del usuario**
@@ -59,6 +59,6 @@ export async function updateUser(data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
     });
-    return response.json();
+    return response;
 }
 

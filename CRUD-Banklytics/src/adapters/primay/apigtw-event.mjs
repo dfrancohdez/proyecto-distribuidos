@@ -2,6 +2,7 @@ import { getAllFilesUC } from "../../domain/use_cases/uc_getAllFiles.mjs";
 import { deleteFileUC } from "../../domain/use_cases/uc_deleteFile.mjs";
 import { validateTokenUC } from "../../domain/use_cases/uc_validate_token.mjs";
 import { getTransactionsUC } from "../../domain/use_cases/uc_getTransactions.mjs";
+import { uploadFileUC } from "../../domain/use_cases/uc_uploadFile.mjs";
 
 export const apiFiles = async (event) => {
     const headers = event["headers"];
@@ -23,6 +24,7 @@ export const apiFiles = async (event) => {
     const stage = event.requestContext.stage;
     const resource = event.resource;
     const method = event.httpMethod;
+    console.log("Decoding token");
     const payload = await validateTokenUC(xMytoken);
     if (!payload) {
         return response(401, { message: "Invalid token" });
@@ -33,8 +35,34 @@ export const apiFiles = async (event) => {
     try{
         if(resource === "/bank-statements/files") {
           if(method === "GET") {
-            const productItems = await getAllFilesUC(stage, user);
-            return response(productItems.httpStatus, { files: productItems.message });
+            const files = await getAllFilesUC(stage, user);
+            return response(files.httpStatus, { files: files.message });
+
+          } else if(method === "POST"){
+            if (!event.body || !event.isBase64Encoded) {
+              console.error("Archivo no enviado como binario.");
+              return response(400, { error: "El archivo no fue enviado como binario o está vacío." });
+            }
+
+            const fileName = event.headers["x-file-name"]; // Nombre del archivo
+
+            if (!fileName) {
+                console.error("Falta el nombre del archivo.");
+                return response(400, { error: "Falta el nombre del archivo (fileName)." });
+            }
+
+            const allowedExtensions = ['.csv', '.xlsx'];
+            const fileExtension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+
+            if (!allowedExtensions.includes(fileExtension)) {
+                console.error(`Formato no permitido: ${fileExtension}`);
+                return response(400, { error: `Formato no permitido. Solo se aceptan: ${allowedExtensions.join(', ')}` });
+            }
+
+            const binaryData = Buffer.from(event.body, "base64"); // Convertir a binario
+            const uploadedFile = await uploadFileUC(user, fileName, binaryData);
+            return response(uploadedFile.httpStatus, { file: uploadedFile.message });
+
           } else{
             return response(405, { message: "Method not allowed" });
           }

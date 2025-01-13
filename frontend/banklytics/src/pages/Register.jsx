@@ -6,6 +6,7 @@ import InfoCardRegister from "../components/InfoCardRegister";
 import { toast } from "react-toastify";
 import "../styles/Kodchasan.css";
 import "../styles/Colors.css";
+import { registerUser, confirmEmail } from "../api/auth";
 
 function Register() {
   // Estados para capturar datos
@@ -29,16 +30,7 @@ function Register() {
     console.log("Datos enviados:", data); // Log para validar los datos antes de enviarlos
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/register`, // Endpoint de la API
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data), // Convertir datos a JSON
-        }
-      );
+      const response = await registerUser(data); // Llamada a la API para registrar usuario
 
       const result = await response.json();
       console.log("Respuesta del servidor:", result);
@@ -67,16 +59,7 @@ function Register() {
     event.preventDefault();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/confirm-email`, // Endpoint para confirmar email
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, code }), // Enviar el email y código
-        }
-      );
+      const response = await confirmEmail({ email, code }); // Llamada a la API para confirmar el código
 
       const result = await response.json();
       console.log("Respuesta del servidor:", result);

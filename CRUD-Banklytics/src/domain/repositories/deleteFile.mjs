@@ -10,7 +10,7 @@ export const deleteFileRepo = async(stage, user, file) => {
     } else {
         if (response.Attributes && responseS3.$metadata) {
             const deletedFile = {
-                filename: item.sk
+                filename: response.sk
             };
 
             return {

@@ -13,8 +13,8 @@ export const s3Event = async (event) => {
         };
     }
 
-    const parts = createdObj.split("_");
-    const user = parts[0];
+    const parts = createdObj.split(/_(.+)/);
+    const user = parts[0].split("/")[1];
     const file = parts[1];
 
     const response = await addFileUC(stage, user, file);
