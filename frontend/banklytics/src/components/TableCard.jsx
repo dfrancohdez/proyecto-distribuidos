@@ -31,6 +31,7 @@ const options = {
       { title: "Origen", data: "Cuenta Bancaria Origen" },
       { title: "Destino", data: "Cuenta Bancaria Destino" },
     ],
+    order: [], 
     pageLength: 5, // Número inicial de filas por página
     lengthMenu: [2, 5, 10, 20, 50], // Opciones de paginación personalizadas
 };

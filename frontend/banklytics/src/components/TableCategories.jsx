@@ -23,6 +23,7 @@ const options = {
         last: "Último"
       }
     },
+    order: [], 
     columns: [
       { title: "Fecha", data: "Fecha" },
       { title: "Monto", data: "Monto" },
