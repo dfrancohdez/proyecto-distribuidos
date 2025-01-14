@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "boxicons/css/boxicons.min.css";
+import "../styles/Colors.css";
 
 function ProfileCard({ username, email, onUpdate }) {
   // Estados para edición
@@ -24,13 +25,9 @@ function ProfileCard({ username, email, onUpdate }) {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg w-96 h-auto scale-110 justify-center items-center">
-      {/* Imagen de perfil */}
+      {/* Ícono de perfil */}
       <div className="flex justify-center mb-4">
-        <img
-          src="https://via.placeholder.com/100"
-          alt="profile"
-          className="w-24 h-24 rounded-full"
-        />
+        <i className="bx bxs-user-circle textPurpple text-8xl"></i>
       </div>
 
       {/* Sección Nombre */}
