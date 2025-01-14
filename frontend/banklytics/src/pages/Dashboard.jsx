@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import ChartCard from "../components/ChartCard";
 import "../styles/Colors.css";
+import "../styles/Dashboard.css"
 import "boxicons/css/boxicons.min.css";
+import TableCard from "../components/TableCard";
 
 function Dashboard() {
   const [showMenu, setShowMenu] = useState(false);
@@ -45,8 +47,7 @@ function Dashboard() {
   const [tableData, setTableData] = useState([]);
   const [groupedData, setGroupedData] = useState({});
   const [sortedData, setSortedData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage] = useState(2);
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -116,15 +117,12 @@ function Dashboard() {
 
   const closeMenu = () => setShowMenu(false);
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentTableData = tableData.slice(indexOfFirstRow, indexOfLastRow);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div
-      className="flex h-screen w-full kodchasan-extralight"
+      className="flex min-h-screen max-h-full w-full kodchasan-extralight"
       onClick={closeMenu}
     >
       <Sidebar onData={handleDataFromSidebar} />
@@ -175,7 +173,7 @@ function Dashboard() {
         </div>
 
         <div className="grid grid-cols-2 gap-6 mb-6">
-          <div className="p-4 bg-white rounded-lg">
+          <div className="p-4 bg-white rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl">Categorías</h2>
               <button
@@ -197,8 +195,8 @@ function Dashboard() {
               </div>
             </div>
           </div>
-
-          <div className="p-4 bg-white rounded-lg flex flex-col justify-center">
+          
+          <div className="p-4 bg-white rounded-lg shadow-lg flex flex-col justify-center">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl">Movimientos</h2>
               <button
@@ -221,48 +219,7 @@ function Dashboard() {
             </div>
           </div>
         </div>
-
-        <div className="p-4 bg-white rounded-lg">
-          <h2 className="text-xl mb-4">Movimientos</h2>
-          <table className="min-w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="border px-4 py-2">Fecha</th>
-                <th className="border px-4 py-2">Concepto</th>
-                <th className="border px-4 py-2">Monto</th>
-                <th className="border px-4 py-2">Clase</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentTableData.map((item, index) => (
-                <tr key={index}>
-                  <td className="border px-4 py-2">{item.Fecha}</td>
-                  <td className="border px-4 py-2">{item.Concepto}</td>
-                  <td className="border px-4 py-2">{item.Monto}</td>
-                  <td className="border px-4 py-2">{item.Clase}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="flex justify-center mt-4">
-            {Array.from(
-              { length: Math.ceil(tableData.length / rowsPerPage) },
-              (_, index) => (
-                <button
-                  key={index}
-                  onClick={() => paginate(index + 1)}
-                  className={`mx-1 px-3 py-1 border rounded ${
-                    currentPage === index + 1
-                      ? "bgPurpple text-white"
-                      : "bg-white text-gray-700"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              )
-            )}
-          </div>
-        </div>
+        <TableCard tableData={tableData}/>
       </div>
     </div>
   );

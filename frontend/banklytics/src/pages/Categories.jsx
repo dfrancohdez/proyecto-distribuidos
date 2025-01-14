@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ChartCardCategories from "../components/ChartCardCategories";
+import TableCategories from "../components/TableCategories";
 import "../styles/Colors.css";
 import "boxicons/css/boxicons.min.css";
 
@@ -72,9 +73,9 @@ function Categories() {
   }, [location.state]);
 
   // Calcular los datos para la página actual
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentTableData = tableData.slice(indexOfFirstRow, indexOfLastRow);
+  //const indexOfLastRow = currentPage * rowsPerPage;
+  //const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  //const currentTableData = tableData.slice(indexOfFirstRow, indexOfLastRow);
 
   // Cambiar página
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -141,7 +142,7 @@ function Categories() {
         {/* Sección de Gráficas */}
         <div className="grid grid-cols-2 gap-6 mb-6">
           {/* Gráfica de Categorías (Circular) */}
-          <div className="p-4 bg-white rounded-lg">
+          <div className="p-4 bg-white rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl">Categorías</h2>
             </div>
@@ -154,48 +155,7 @@ function Categories() {
           </div>
 
           {/* Tabla con datos agrupados */}
-          <div className="p-4 bg-white rounded-lg">
-            <h2 className="text-xl mb-4">Movimientos Agrupados</h2>
-            <table className="min-w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="border px-4 py-2">Fecha</th>
-                  <th className="border px-4 py-2">Concepto</th>
-                  <th className="border px-4 py-2">Monto</th>
-                  <th className="border px-4 py-2">Clase</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentTableData.map((item, index) => (
-                  <tr key={index}>
-                    <td className="border px-4 py-2">{item.Fecha}</td>
-                    <td className="border px-4 py-2">{item.Concepto}</td>
-                    <td className="border px-4 py-2">{item.Monto}</td>
-                    <td className="border px-4 py-2">{item.Clase}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {/* Paginación */}
-            <div className="flex justify-center mt-4">
-              {Array.from(
-                { length: Math.ceil(tableData.length / rowsPerPage) },
-                (_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => paginate(index + 1)}
-                    className={`mx-1 px-3 py-1 border rounded ${
-                      currentPage === index + 1
-                        ? "bgPurpple text-white"
-                        : "bg-white text-gray-700"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
+          <TableCategories tableData={tableData}/>
         </div>
 
         {/* Botón Regresar */}
