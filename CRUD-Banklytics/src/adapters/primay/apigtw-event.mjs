@@ -35,6 +35,7 @@ export const apiFiles = async (event) => {
     try{
         if(resource === "/bank-statements/files") {
           if(method === "GET") {
+            console.log("Getting all files");
             const files = await getAllFilesUC(stage, user);
             return response(files.httpStatus, { files: files.message });
 
@@ -60,7 +61,7 @@ export const apiFiles = async (event) => {
             }
 
             const binaryData = Buffer.from(event.body, "base64"); // Convertir a binario
-            const uploadedFile = await uploadFileUC(user, fileName, binaryData);
+            const uploadedFile = await uploadFileUC(user, fileName, binaryData, stage);
             return response(uploadedFile.httpStatus, { file: uploadedFile.message });
 
           } else{
@@ -72,7 +73,7 @@ export const apiFiles = async (event) => {
             const deletedProduct = await deleteFileUC(stage, user, file);
             return response(deletedProduct.httpStatus, { file: deletedProduct.message });
           } else if(method === "GET") {
-            const transactions = await getTransactionsUC(user, file);
+            const transactions = await getTransactionsUC(user, file, stage);
 
             if (transactions.transactions) {
               return response(200, { data: transactions.transactions });

@@ -18,7 +18,6 @@ function Sidebar({ onData }) {
     setIsUploadingFiles(true);
     try {
       const result = await getUserFiles();
-      console.log("Resultado de archivos:", result);
       const files = result.files || [];
       if (files && files.length > 0) {
         setArchivos(files);
@@ -73,7 +72,6 @@ function Sidebar({ onData }) {
             });
 
             const result = await uploadFile(file);
-            console.log("Resultado:", result);
 
             toast.info("Procesando archivo...", {
               position: "bottom-center",
@@ -108,10 +106,10 @@ function Sidebar({ onData }) {
   const handleFileTransactions = async (filename) => {
     try {
       const result = await getTransactions(filename);
-      console.log("Resultado de transacciones:", result);
+      // console.log("Resultado de transacciones:", result);
 
       const transacResult = result.data || []; // Aquí están los datos del excel
-      console.log("Transacciones recibidas:", transacResult);
+      // console.log("Transacciones recibidas:", transacResult);
 
       // Agrupar por categoría (clase)
       const groupedByClass = transacResult.reduce((acc, item) => {
@@ -123,17 +121,17 @@ function Sidebar({ onData }) {
         return acc;
       }, {});
 
-      console.log("Datos agrupados por clase:", groupedByClass);
+      // console.log("Datos agrupados por clase:", groupedByClass);
 
       // Ordenar de mayor a menor por monto
       const sortedByAmount = [...transacResult].sort(
         (a, b) => b.Monto - a.Monto
       );
 
-      console.log(
-        "Datos ordenados de mayor a menor por monto:",
-        sortedByAmount
-      );
+      // console.log(
+      //   "Datos ordenados de mayor a menor por monto:",
+      //   sortedByAmount
+      // );
 
       // Enviar datos agrupados, ordenados y originales al Dashboard
       onData({
@@ -158,12 +156,26 @@ function Sidebar({ onData }) {
 
       if (confirmDelete) {
         const result = await deleteFile(filename);
-        console.log("Resultado de eliminación:", result);
+        // console.log("Resultado de eliminación:", result);
 
         const newFiles = archivos.filter(
           (archivo) => archivo.filename !== filename
         );
         setArchivos(newFiles);
+
+        if (filename === localStorage.getItem("filename")) {
+          localStorage.removeItem("sortedData");
+          localStorage.removeItem("groupedData");
+          localStorage.removeItem("originalData");
+          localStorage.removeItem("filename");
+
+          onData({
+            filename: "",
+            original: [],
+            grouped: {},
+            sorted: [],
+          });
+        }
 
         toast.success("Archivo eliminado con éxito.", {
           position: "bottom-center",

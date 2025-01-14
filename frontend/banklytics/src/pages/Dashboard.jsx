@@ -126,6 +126,7 @@ function Dashboard() {
     localStorage.removeItem("sortedData");
     localStorage.removeItem("groupedData");
     localStorage.removeItem("originalData");
+    localStorage.removeItem("filename");
     navigate("/");
   };
 
@@ -147,8 +148,8 @@ function Dashboard() {
 
   const handleDataFromSidebar = ({ filename, original, grouped, sorted }) => {
     console.log("Arreglo original recibido:", original);
-    console.log("Arreglo agrupado por clase:", grouped);
-    console.log("Arreglo ordenado por monto:", sorted);
+    // console.log("Arreglo agrupado por clase:", grouped);
+    // console.log("Arreglo ordenado por monto:", sorted);
 
     const pieChartLabels = Object.keys(grouped);
     const pieChartData = Object.values(grouped).map((items) => items.length);
@@ -195,8 +196,8 @@ function Dashboard() {
     const numIntervalos = 100;
     const { indices, percentiles } = calcularDistribucionFrecuencia(sorted, numIntervalos);
 
-    console.log("Percentiles:", percentiles);
-    console.log("num:", indices);
+    // console.log("Percentiles:", percentiles);
+    // console.log("num:", indices);
 
     setLineData({
       labels: percentiles,

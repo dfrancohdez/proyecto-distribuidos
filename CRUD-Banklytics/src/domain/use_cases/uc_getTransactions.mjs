@@ -10,9 +10,9 @@ const streamToBuffer = (stream) => {
     });
 };
 
-export const getTransactionsUC = async (user, file) => {
+export const getTransactionsUC = async (user, file, stage) => {
     try {
-        const fileData = await getTransactionsRepo(user, file);
+        const fileData = await getTransactionsRepo(user, file, stage);
         if (fileData.error) {
             return { error: fileData };
         }

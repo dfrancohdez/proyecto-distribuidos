@@ -14,7 +14,7 @@ function FileList() {
       setIsUploadingFiles(true);
       try {
         const result = await getUserFiles();
-        console.log("Resultado de archivos:", result);
+        // console.log("Resultado de archivos:", result);
         const files = result.files || [];
         if (files && files.length > 0) {
           setArchivos(files);
@@ -42,7 +42,7 @@ function FileList() {
 
       if (confirmDelete) {
         const result = await deleteFile(filename);
-        console.log("Resultado de eliminación:", result);
+        // console.log("Resultado de eliminación:", result);
 
         const newFiles = archivos.filter(
           (archivo) => archivo.filename !== filename

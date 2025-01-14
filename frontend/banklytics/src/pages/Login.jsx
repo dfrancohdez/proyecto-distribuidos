@@ -23,13 +23,13 @@ function Login() {
       password,
     };
 
-    console.log("Datos enviados:", data); // Log para validar los datos antes de enviarlos
+    // console.log("Datos enviados:", data); // Log para validar los datos antes de enviarlos
 
     try {
       const response = await loginUser(data); // Llamada a la API para iniciar sesión
 
       const result = await response.json();
-      console.log("Respuesta del servidor:", result);
+      // console.log("Respuesta del servidor:", result);
 
       if (response.ok) {
         //alert("Inicio de sesión exitoso");

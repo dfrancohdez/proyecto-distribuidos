@@ -1,7 +1,8 @@
 import { addFileUC } from "../../domain/use_cases/uc_addFile.mjs";
 
 export const s3Event = async (event) => {
-    const stage = "dev";
+    const bucket = event.Records[0].s3.bucket.name;
+    const stage = bucket === "banklytics-storage" ? "prod" : "dev";
 
     const createdObj = event.Records[0].s3.object.key;
     const eventName = event.Records[0].eventName;

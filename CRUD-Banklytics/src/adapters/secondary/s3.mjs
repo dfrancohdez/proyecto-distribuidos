@@ -2,14 +2,14 @@ import { S3Client, DeleteObjectCommand, GetObjectCommand, PutObjectCommand } fro
 
 const client = new S3Client({ region: "us-east-1" });
 
-export const deleteFileS3 = async(key) => {
+export const deleteFileS3 = async(key, bucket) => {
     const params1 = {
-        Bucket: "banklytics-storage",
+        Bucket: `${bucket}`,
         Key: `processed/${key}`,
     }
 
     const params2 = {
-        Bucket: "banklytics-storage",
+        Bucket: `${bucket}`,
         Key: `incoming/${key}`,
     }
 
@@ -24,9 +24,9 @@ export const deleteFileS3 = async(key) => {
     }
 }
 
-export const getObjectFile = async(key) => {
+export const getObjectFile = async(key, bucket) => {
     const params = {
-        Bucket: "banklytics-storage",
+        Bucket: `${bucket}`,
         Key: `processed/${key}`,
     }
 
@@ -39,10 +39,10 @@ export const getObjectFile = async(key) => {
     }
 }
 
-export const putObjectFile = async(key, body) => {
+export const putObjectFile = async(key, body, bucket) => {
     const fileExtension = key.substring(key.lastIndexOf('.')).toLowerCase();
     const params = {
-        Bucket: "banklytics-storage",
+        Bucket: `${bucket}`,
         Key: `incoming/${key}`,
         Body: body,
         ContentType: fileExtension === '.csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

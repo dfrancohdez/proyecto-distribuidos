@@ -27,13 +27,13 @@ function Register() {
       password,
     };
 
-    console.log("Datos enviados:", data); // Log para validar los datos antes de enviarlos
+    // console.log("Datos enviados:", data); // Log para validar los datos antes de enviarlos
 
     try {
       const response = await registerUser(data); // Llamada a la API para registrar usuario
 
       const result = await response.json();
-      console.log("Respuesta del servidor:", result);
+      // console.log("Respuesta del servidor:", result);
 
       if (response.ok) {
         //alert("Registro exitoso. Se ha enviado un código de confirmación.");
@@ -62,7 +62,7 @@ function Register() {
       const response = await confirmEmail({ email, code }); // Llamada a la API para confirmar el código
 
       const result = await response.json();
-      console.log("Respuesta del servidor:", result);
+      // console.log("Respuesta del servidor:", result);
 
       if (response.ok) {
         //alert("Correo confirmado con éxito. Ahora puedes iniciar sesión.");
