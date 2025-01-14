@@ -13,7 +13,6 @@ function Sidebar({ onData }) {
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [archivos, setArchivos] = useState([]);
-  const [transacciones, setTransacciones] = useState([]);
 
   const fetchFiles = async () => {
     setIsUploadingFiles(true);
@@ -39,13 +38,6 @@ function Sidebar({ onData }) {
   useEffect(() => {
     fetchFiles();
   }, []);
-
-  function formatDate(date) {
-    const day = String(date.getDate()).padStart(2, "0"); // Obtener día y agregar ceros iniciales
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Obtener mes y agregar ceros iniciales
-    const year = date.getFullYear(); // Obtener año
-    return `${day}-${month}-${year}`; // Retornar la fecha en formato DD-MM-YYYY
-  }
 
   const handleFileSelect = async () => {
     const fileInput = document.createElement("input");
@@ -143,11 +135,9 @@ function Sidebar({ onData }) {
         sortedByAmount
       );
 
-      // Actualizar estado con transacciones
-      setTransacciones(transacResult);
-
       // Enviar datos agrupados, ordenados y originales al Dashboard
       onData({
+        filename: filename,
         original: transacResult,
         grouped: groupedByClass,
         sorted: sortedByAmount,
