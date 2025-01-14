@@ -131,9 +131,8 @@ function Movements() {
         {/* Encabezado de Gráficas */}
         <div className="flex justify-between items-center mb-4 px-4">
           <span className="text-lg text-gray-500 hover:textPurpple cursor-pointer">
-            Archivo: Reporte_2024
+            Reporte de archivo
           </span>
-          <span className="text-lg text-gray-500">Fecha: 31/12/2024</span>
         </div>
 
         {/* Sección de Gráficas */}
@@ -152,7 +151,7 @@ function Movements() {
           </div>
 
           {/* Tabla con movimientos ordenados */}
-          <TableMovements tableData={tableData} /> 
+          <TableMovements tableData={tableData} />
         </div>
 
         {/* Botón Regresar */}
