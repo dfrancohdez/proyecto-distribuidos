@@ -48,6 +48,13 @@ function FileList() {
           (archivo) => archivo.filename !== filename
         );
         setArchivos(newFiles);
+
+        if (filename === localStorage.getItem("filename")) {
+          localStorage.removeItem("sortedData");
+          localStorage.removeItem("groupedData");
+          localStorage.removeItem("originalData");
+          localStorage.removeItem("filename");
+        }
         
         toast.success("Archivo eliminado con éxito.", {
           position: "bottom-center",
